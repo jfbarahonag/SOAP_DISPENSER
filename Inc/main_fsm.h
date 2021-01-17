@@ -49,6 +49,9 @@ typedef struct main_fsm_
 	bool new_evt;
 }main_fsm_t;
 
+main_fsm_t dispenser;
+
 void main_fsm_init(main_fsm_t *fsm);
+void main_fsm_run(main_fsm_t *fsm);
 
 #endif
