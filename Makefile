@@ -3,7 +3,7 @@
 # project subdirectory.
 #
 
-PROJECT_NAME := gpio
+PROJECT_NAME := soap_dispenser
 
 include $(IDF_PATH)/make/project.mk
 
