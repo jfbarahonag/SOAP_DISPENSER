@@ -1,3 +1,6 @@
+#ifndef __MAIN_FSM_H_
+#define __MAIN_FSM_H_
+
 #include <stdbool.h>
 
 typedef enum main_internal_events_
@@ -47,3 +50,5 @@ typedef struct main_fsm_
 }main_fsm_t;
 
 void main_fsm_init(main_fsm_t *fsm);
+
+#endif

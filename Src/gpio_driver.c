@@ -17,7 +17,7 @@ esp_err_t gpio_pin_init(gpio_num_t pin, gpio_mode_t mode)
     }
 
     if (mode == GPIO_MODE_OUTPUT) {
-        return gpio_set_level(pin, 1);
+        return gpio_set_level(pin, 0);
     }
 
     return ret;
