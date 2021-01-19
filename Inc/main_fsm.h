@@ -49,9 +49,15 @@ typedef struct main_fsm_
 	bool new_evt;
 }main_fsm_t;
 
-main_fsm_t dispenser;
+//global
+main_fsm_t dispenser_fsm;
 
 void main_fsm_init(main_fsm_t *fsm);
 void main_fsm_run(main_fsm_t *fsm);
+
+void main_fsm_set_external_evt(main_fsm_t *fsm, main_external_events_t evt);
+void main_fsm_set_internal_evt(main_fsm_t *fsm, main_internal_events_t evt);
+
+main_states_t main_fsm_get_state(main_fsm_t *fsm);
 
 #endif

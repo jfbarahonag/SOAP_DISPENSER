@@ -5,11 +5,17 @@
 //IDF libraries
 #include "esp_log.h"
 //Custom libraries
-#include "gpio_driver.h"
-#include "timer_driver.h"
+#include "led_manager.h"
+#include "sensor_manager.h"
+#include "dispenser_manager.h"
+#include "main_fsm.h"
+
+#include "timer_manager.h"
 
 const char *TAG = "MAIN";
 static bool status = true;
+
+void init_components(void);
 
 void timer_callback(void *args)
 {
@@ -18,26 +24,32 @@ void timer_callback(void *args)
     //gpio_set_level(UI_LED_PIN, status ^= 1);
 }
 
-
-void gpio_callback(void *args)
-{ 
-    status ^= 1;
-
-    //(status == true) ? status = false : status = true;
-
-    gpio_set_level(UI_LED_PIN, status );
+void sensor_callback(void *args)
+{
+    gpio_set_level(UI_LED_PIN, status ^= 1);
 }
 
 void app_main(void)
 {
-    ESP_ERROR_CHECK(timer_driver_init(1000000, &timer_callback));
+    init_components();
     
-    ESP_ERROR_CHECK(gpio_pin_init(UI_LED_PIN, GPIO_MODE_OUTPUT, GPIO_PULLDOWN_ENABLE, GPIO_PULLUP_DISABLE));
-    ESP_ERROR_CHECK(gpio_pin_intr_init(SENSOR_INPUT_PIN, GPIO_PULLDOWN_DISABLE, GPIO_PULLUP_DISABLE, &gpio_callback));
+    main_fsm_init(&dispenser_fsm);
 
     gpio_set_level(UI_LED_PIN, status);    
+    
     while(1) {
-        //gpio_set_level(UI_LED_PIN, gpio_get_level(SENSOR_INPUT_PIN));    
+        main_fsm_run(&dispenser_fsm);
     }
 }
 
+
+{
+    sensor_manager_set_callback(&sensor, &sensor_callback);
+    sensor_manager_init(&sensor, SENSOR_INPUT_PIN);
+
+    led_manager_init(&ui_led, UI_LED_PIN);
+    
+    dispenser_manager_init(&dispenser_mngr, DISPENSER_PIN);
+
+    timer_manager_init(1000000, &timer_callback);
+}

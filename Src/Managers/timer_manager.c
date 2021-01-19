@@ -1,6 +1,6 @@
-#include "timer_driver.h"
+#include "timer_manager.h"
 
-esp_err_t timer_driver_init(uint64_t time_in_us, void (*timer_callback)(void* arg))
+esp_err_t timer_manager_init(uint64_t time_in_us, void (*timer_callback)(void* arg))
 {
     const esp_timer_create_args_t timer_args = {
         .callback = timer_callback,

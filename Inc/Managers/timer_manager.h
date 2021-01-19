@@ -1,5 +1,5 @@
-#ifndef __TIMER_DRIVER_H_
-#define __TIMER_DRIVER_H_
+#ifndef __TIMER_MANAGER_H_
+#define __TIMER_MANAGER_H_
 
 #include "esp_timer.h"
 #include "esp_err.h"
@@ -13,6 +13,6 @@
  *          void timer_callback(void *args)
  * @return: ESP_OK if timer was started correctly.
  **/
-esp_err_t timer_driver_init(uint64_t time_in_us, void (*timer_callback)(void* arg));
+esp_err_t timer_manager_init(uint64_t time_in_us, void (*timer_callback)(void* arg));
 
 #endif

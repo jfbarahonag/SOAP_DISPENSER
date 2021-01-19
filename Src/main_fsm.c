@@ -3,8 +3,9 @@
 #include"esp_log.h"
 
 #include "main_fsm.h"
+#include "led_manager.h" //Temporal
 
-const char *TAG = "MAIN_FSM";
+const char *MAIN_FSM_TAG = "MAIN_FSM";
 
 static void main_fsm_reset_variables(main_fsm_t *fsm)
 {
@@ -16,21 +17,25 @@ static void main_fsm_reset_variables(main_fsm_t *fsm)
     fsm->st = ST_MAIN_IDLE;
 }
 
-static main_states_t get_state(main_fsm_t *fsm)
+main_states_t main_fsm_get_state(main_fsm_t *fsm)
 {
     return fsm->st;
 }
 
-static void set_next_state(main_fsm_t *fsm, main_states_t next_st)
+static void main_fsm_set_next_state(main_fsm_t *fsm, main_states_t next_st)
 {
     fsm->st = next_st;
 }
 
 static void main_fsm_error_handler()
 {
-    ESP_LOGI(TAG, "MAIN FSM ERROR HANDLER\r\n");
-    while (1);
-    
+    ESP_LOGI(MAIN_FSM_TAG, "MAIN FSM ERROR HANDLER\r\n");
+    while (1);  
+}
+
+static void main_fsm_clear_new_evt_flag(main_fsm_t *fsm)
+{
+    fsm->new_evt = false;
 }
 
 void main_fsm_init(main_fsm_t *fsm)
@@ -43,14 +48,18 @@ void main_fsm_run(main_fsm_t *fsm)
 {
     if (fsm->new_evt == true)
     {
-        switch (get_state(fsm))
+        main_fsm_clear_new_evt_flag(fsm);
+
+        ESP_LOGI(MAIN_FSM_TAG, "New event ON");
+        switch (main_fsm_get_state(fsm))
         {
         case ST_MAIN_IDLE:
 
             if(fsm->evt.internal == EV_MAIN_INT_HAND_DETECTED)
             {
-
-                set_next_state(fsm, ST_MAIN_DISPENSE);
+                main_fsm_set_next_state(fsm, ST_MAIN_DISPENSE);
+                // open dispenser & start countdown
+                gpio_set_level(ui_dispenser.iface.pin, 1);
             }
 
             break;
@@ -59,8 +68,7 @@ void main_fsm_run(main_fsm_t *fsm)
             
             if(fsm->evt.internal == EV_MAIN_INT_SOAP_TIMEOUT)
             {
-
-                set_next_state(fsm, ST_MAIN_RELEASE);
+                main_fsm_set_next_state(fsm, ST_MAIN_RELEASE);
             }
 
             break;
@@ -69,11 +77,11 @@ void main_fsm_run(main_fsm_t *fsm)
 
             if(fsm->evt.internal == EV_MAIN_INT_HAND_DETECTED)
             {
-                set_next_state(fsm, ST_MAIN_LED_ERR_PATTERN);
+                main_fsm_set_next_state(fsm, ST_MAIN_LED_ERR_PATTERN);
             }
             else if (fsm->evt.internal == EV_MAIN_INT_HAND_NOT_DETECTED) //TODO: HOW TO TRIGGER THIS EVENT?
             {
-                set_next_state(fsm, ST_MAIN_IDLE);
+                main_fsm_set_next_state(fsm, ST_MAIN_IDLE);
             }
 
             break;
@@ -82,7 +90,7 @@ void main_fsm_run(main_fsm_t *fsm)
 
             if (fsm->evt.external == EV_MAIN_EXT_PATTERN_OK)
             {
-                set_next_state(fsm, ST_MAIN_RELEASE);
+                main_fsm_set_next_state(fsm, ST_MAIN_RELEASE);
             }
 
             break;
@@ -94,4 +102,16 @@ void main_fsm_run(main_fsm_t *fsm)
             break;
         }
     }
+}
+
+void main_fsm_set_external_evt(main_fsm_t *fsm, main_external_events_t evt)
+{
+    fsm->evt.external = evt;
+    fsm->new_evt = true;
+}
+
+inline void main_fsm_set_internal_evt(main_fsm_t *fsm, main_internal_events_t evt)
+{
+    fsm->evt.internal = evt;
+    fsm->new_evt = true;
 }
