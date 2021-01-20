@@ -3,7 +3,9 @@
 #include"esp_log.h"
 
 #include "main_fsm.h"
-#include "led_manager.h" //Temporal
+#include "led_manager.h"
+#include "dispenser_manager.h"
+#include "sensor_manager.h"
 
 const char *MAIN_FSM_TAG = "MAIN_FSM";
 
@@ -50,7 +52,7 @@ void main_fsm_run(main_fsm_t *fsm)
     {
         main_fsm_clear_new_evt_flag(fsm);
 
-        ESP_LOGI(MAIN_FSM_TAG, "New event ON");
+        //ESP_LOGI(MAIN_FSM_TAG, "New event ON");
         switch (main_fsm_get_state(fsm))
         {
         case ST_MAIN_IDLE:
@@ -59,7 +61,7 @@ void main_fsm_run(main_fsm_t *fsm)
             {
                 main_fsm_set_next_state(fsm, ST_MAIN_DISPENSE);
                 // open dispenser & start countdown
-                gpio_set_level(ui_dispenser.iface.pin, 1);
+                dispenser_manager_turn_on(&dispenser_mngr);
             }
 
             break;
@@ -69,6 +71,8 @@ void main_fsm_run(main_fsm_t *fsm)
             if(fsm->evt.internal == EV_MAIN_INT_SOAP_TIMEOUT)
             {
                 main_fsm_set_next_state(fsm, ST_MAIN_RELEASE);
+                //countdown reached
+                dispenser_manager_turn_off(&dispenser_mngr);
             }
 
             break;
@@ -81,6 +85,7 @@ void main_fsm_run(main_fsm_t *fsm)
             }
             else if (fsm->evt.internal == EV_MAIN_INT_HAND_NOT_DETECTED) //TODO: HOW TO TRIGGER THIS EVENT?
             {
+                ESP_LOGI(MAIN_FSM_TAG, "ST [RELEASE] -> EV [HAND NOT DETECTED]");
                 main_fsm_set_next_state(fsm, ST_MAIN_IDLE);
             }
 
