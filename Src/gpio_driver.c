@@ -45,7 +45,7 @@ esp_err_t gpio_driver_pin_intr_init(gpio_num_t pin, gpio_pulldown_t pulldown_en,
 
     gpio_isr_handler_add(pin, gpio_callback, NULL);
 
-    gpio_set_intr_type(pin, GPIO_INTR_POSEDGE);
+    gpio_set_intr_type(pin, GPIO_PIN_INTR_ANYEDGE);
     
     return gpio_intr_enable(pin);
 }
@@ -58,4 +58,9 @@ void gpio_driver_pin_set_high(gpio_num_t pin)
 void gpio_driver_pin_set_low(gpio_num_t pin)
 {
     gpio_set_level(pin, 0);
+}
+
+inline int gpio_driver_get_level(gpio_num_t pin)
+{
+    return gpio_get_level(pin);
 }

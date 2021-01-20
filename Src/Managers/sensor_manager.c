@@ -21,3 +21,8 @@ int sensor_manager_init(sensor_t *sensor, int pin)
     }
     return 0;
 }
+
+inline int sensor_manager_get_level(sensor_t *sensor)
+{
+    return gpio_driver_get_level(sensor->iface.pin);
+}

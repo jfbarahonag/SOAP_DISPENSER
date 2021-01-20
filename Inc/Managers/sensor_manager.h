@@ -18,4 +18,6 @@ sensor_t sensor;
 void sensor_manager_set_callback(sensor_t *sensor, void (*callback)(void *arg));
 int sensor_manager_init(sensor_t *sensor, int pin);
 
+int sensor_manager_get_level(sensor_t *sensor);
+
 #endif

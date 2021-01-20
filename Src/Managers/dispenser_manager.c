@@ -30,3 +30,13 @@ void dispenser_manager_increment_timer_cnt(dispenser_t *disp)
 {
     disp->time_counter++; 
 }
+
+inline uint16_t dispenser_manager_get_timer_cnt(dispenser_t *disp) //maybe is called in timer callback [DEBUG]
+{
+    return disp->time_counter;
+}
+
+inline bool dispenser_manager_is_timeout_reached(dispenser_t *disp)
+{
+    return disp->time_counter >= TIMEOUT_VALUE_MS;
+}
