@@ -16,7 +16,7 @@
 const char *TAG = "MAIN";
 static bool status = true;
 
-void init_components(void);
+void init_managers(void);
 
 void timer_callback(void *args)
 {
@@ -29,6 +29,17 @@ void timer_callback(void *args)
             ESP_LOGI(TAG, "TIMEOUT REACHED");
             dispenser_manager_reset_timer_cnt(&dispenser_mngr);
             main_fsm_set_internal_evt(&dispenser_fsm, EV_MAIN_INT_SOAP_TIMEOUT);
+        }
+    }
+
+    if (main_fsm_get_state(&dispenser_fsm) == ST_MAIN_RELEASE)
+    {
+        dispenser_fsm.values.timer_cnt++;
+
+        if(dispenser_fsm.values.timer_cnt >= ERROR_TIME_MS)
+        {
+            dispenser_fsm.values.timer_cnt = 0; //TODO: Refactor
+            main_fsm_set_internal_evt(&dispenser_fsm, EV_MAIN_INT_ERROR_TIMEOUT);
         }
     }
 }
@@ -49,14 +60,14 @@ void sensor_callback(void *args)
         }
         else
         {
-            main_fsm_set_internal_evt(&dispenser_fsm, EV_MAIN_INT_HAND_NOT_DETECTED);
+            main_fsm_set_internal_evt(&dispenser_fsm, EV_MAIN_INT_HAND_RETIRED);
         }
     }
 }
 
 void app_main(void)
 {
-    init_components();
+    init_managers();
     
     main_fsm_init(&dispenser_fsm);
 
@@ -64,10 +75,11 @@ void app_main(void)
     
     while(1) {
         main_fsm_run(&dispenser_fsm);
+        led_fsm_run(&ui_led);
     }
 }
 
-void init_components(void)
+void init_managers(void)
 {
     sensor_manager_set_callback(&sensor, &sensor_callback);
     sensor_manager_init(&sensor, SENSOR_INPUT_PIN);

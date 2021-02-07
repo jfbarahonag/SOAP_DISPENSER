@@ -17,6 +17,8 @@ static void main_fsm_reset_variables(main_fsm_t *fsm)
     fsm->evt.external = EV_MAIN_EXT_INVALID;
 
     fsm->st = ST_MAIN_IDLE;
+
+    fsm->values.timer_cnt = 0;
 }
 
 main_states_t main_fsm_get_state(main_fsm_t *fsm)
@@ -79,12 +81,14 @@ void main_fsm_run(main_fsm_t *fsm)
 
         case ST_MAIN_RELEASE:
 
-            if(fsm->evt.internal == EV_MAIN_INT_HAND_DETECTED)
+            if(fsm->evt.internal == EV_MAIN_INT_ERROR_TIMEOUT)
             {
                 main_fsm_set_next_state(fsm, ST_MAIN_LED_ERR_PATTERN);
+                led_fsm
             }
-            else if (fsm->evt.internal == EV_MAIN_INT_HAND_NOT_DETECTED) //TODO: HOW TO TRIGGER THIS EVENT?
+            else if (fsm->evt.internal == EV_MAIN_INT_HAND_RETIRED) //FALLING EDGE
             {
+                fsm->values.timer_cnt = 0; //TODO: Refactor
                 ESP_LOGI(MAIN_FSM_TAG, "ST [RELEASE] -> EV [HAND NOT DETECTED]");
                 main_fsm_set_next_state(fsm, ST_MAIN_IDLE);
             }

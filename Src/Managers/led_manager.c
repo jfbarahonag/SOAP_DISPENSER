@@ -13,3 +13,8 @@ void led_manager_run (led_handle_t *led)
 {
     led_fsm_run(&led->fsm);
 }
+
+void led_manager_start_error_pattern(led_handle_t *led)
+{
+    ///led->fsm.
+}

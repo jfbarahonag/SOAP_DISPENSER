@@ -47,8 +47,14 @@ typedef struct led_events_
 	led_external_events_t external;
 }led_events_t;
 
+typedef struct values_
+{
+	volatile uint16_t timer_cnt;
+}values_t;
+
 typedef struct led_fsm_
 {
+	values_t values;
 	led_states_t st;
 	led_events_t evt;
 	bool new_evt;

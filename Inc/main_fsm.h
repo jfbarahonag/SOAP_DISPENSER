@@ -3,13 +3,16 @@
 
 #include <stdbool.h>
 
+#define ERROR_TIME_MS	1000
+
 typedef enum main_internal_events_
 {
 	EV_MAIN_INT_INVALID,
 	
 	EV_MAIN_INT_HAND_DETECTED,
-	EV_MAIN_INT_HAND_NOT_DETECTED,
+	EV_MAIN_INT_HAND_RETIRED,
 	EV_MAIN_INT_SOAP_TIMEOUT,
+	EV_MAIN_INT_ERROR_TIMEOUT,
 	
 	EV_MAIN_INT_COUNT,
 }main_internal_events_t;
@@ -42,8 +45,14 @@ typedef struct main_events_
 	main_external_events_t external;
 }main_events_t;
 
+typedef struct values_
+{
+	volatile uint16_t timer_cnt;
+}values_t;	
+
 typedef struct main_fsm_
 {
+	values_t values;
 	main_states_t st;
 	main_events_t evt;
 	bool new_evt;
